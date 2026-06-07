@@ -1,0 +1,34 @@
+name: Build AHK
+
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download AutoHotkey
+        shell: powershell
+        run: |
+          Invoke-WebRequest `
+            -Uri "https://www.autohotkey.com/download/1.1/ahk.zip" `
+            -OutFile "ahk.zip"
+
+          Expand-Archive ahk.zip -DestinationPath .
+
+      - name: Compile Script
+        shell: powershell
+        run: |
+          .\AutoHotkey\Compiler\Ahk2Exe.exe `
+            /in main.ahk `
+            /out main.exe
+
+      - name: Upload EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: compiled-exe
+          path: main.exe
